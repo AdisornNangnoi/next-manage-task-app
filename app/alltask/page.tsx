@@ -41,9 +41,13 @@ export default function Page() {
   }, []);
 
   // สร้างฟังชันลบ Task
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, oldImage: string) => {
     if (confirm("คุณต้องการลบงานนี้หรือไม่?")) {
       const { error } = await supabase.from("task_tb").delete().eq("id", id);
+      const fileName = oldImage?.split("/").pop();
+      if (fileName) {
+        await supabase.storage.from("task_bk").remove([fileName]);
+      }
       if (error) {
         console.log(error);
       } else {
@@ -116,7 +120,7 @@ export default function Page() {
                   </Link>
                   <button
                     className="text-red-500 hover:text-red-800 cursor-pointer"
-                    onClick={() => handleDelete(task.id)}
+                    onClick={() => handleDelete(task.id, task.image_url!)}
                   >
                     ลบ
                   </button>
